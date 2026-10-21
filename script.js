@@ -94,7 +94,7 @@ function parseTime(rawTime){
 
 async function test(){
     const response = await fetch(
-        `http://opendata.fmi.fi/wfs?request=getFeature&storedquery_id=fmi::forecast::edited::weather::scandinavia::point::simple&place=jyväskylä`
+        `https://opendata.fmi.fi/wfs?request=getFeature&storedquery_id=fmi::forecast::edited::weather::scandinavia::point::simple&place=jyväskylä`
     )
     text = await response.text()
 
