@@ -1,9 +1,3 @@
-// wfs:member
-//     BsWfsElement
-//         BsWfsTime
-//         BsWfsparametername t2m
-//         BsWfsparametervalue
-
 //async tells the code this is not instant
 async function getData(place){
     //await tells the code this is not instant
@@ -19,87 +13,67 @@ async function getData(place){
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(text, "text/xml")
 
-    // const parameters = xmlDoc.getElementsByTagName("BsWfs:Time")
-    // console.log(parameters);
     return xmlDoc;
 };
 
+//function to create a place for HTML
+function getWeather(place){
+    //call the function to parse api
+    const func = getData(place).then(xmlDoc => {
+        //create HTML elements and write the header for place
+        const elements  = xmlDoc.getElementsByTagName("BsWfs:BsWfsElement");
+        const div = document.createElement("div");
+        let makeHeader = document.createElement("h1");
+        document.body.append(div);
+        div.append(makeHeader);
+        makeHeader.append(capitalizePlace(place) + ":");
 
-// getData().then(xmlDoc => {
-//     const parameters = xmlDoc.getElementsByTagName("BsWfs:BsWfsElement");
+        //capitalises the first letter of the place(mostly to make it the header in HTML)
+        function capitalizePlace(name){
+            let letters = name.split("");
+            let firstBig = letters[0].toUpperCase();
+            return firstBig + letters.join("").slice(1)
+        }
 
-//     const time = parseTime(parameters[0].getElementsByTagName("BsWfs:Time")[0].textContent);
-//     console.log(time);
+        let temps = [];
+        let last = "";
 
-//     const parameterName = parameters[0].getElementsByTagName("BsWfs:ParameterName")[0].textContent;
-//     console.log(parameterName);
+        //loop trough data to find temp and time
+        for(const element of elements){
+            if (element.getElementsByTagName("BsWfs:ParameterName")[0].textContent == "t2m"){
+                const dataType = element.getElementsByTagName("BsWfs:ParameterName")[0].textContent;
+                const temp = element.getElementsByTagName("BsWfs:ParameterValue")[0].textContent;
+                const time = parseTime(element.getElementsByTagName("BsWfs:Time")[0].textContent);
+                last = `${time}: ${temp}\u00B0C`;
+                temps.push(last);
+            }
+        }
+        
+        //put last 3 observations to HTML
+        for(let i = -1; i > -4; i--){
+            const makeP = document.createElement("p");
 
-//     const value = parameters[0].getElementsByTagName("BsWfs:ParameterValue")[0].textContent;
-//     console.log(value);
-// });
-
+            div.append(makeP)
+            makeP.append(temps[temps.length+i])
+        }
+    });
+}
 
 function parseTime(rawTime){
     const dateTime = rawTime.split("T");
-    const date = dateTime[0].split("-").reverse().join(".").slice(0, 5);
+    const date = dateTime[0].split("-").reverse().join(".").slice(0, 6);
     const time = dateTime[1].slice(0,5);
 
     //convert time to gmt+3
     const gmtPlus3 = parseInt(time.slice(0, 2)) + 3;
     const newTime = gmtPlus3.toString() + time.slice(2);
 
-    return `${date}, ${newTime}`
+    return `${date} klo:${newTime}`
 }
 
-
-const tempDataJkl = getData("jyväskylä").then(xmlDoc => {
-    const elements  = xmlDoc.getElementsByTagName("BsWfs:BsWfsElement")
-    const jyvTemp = document.getElementById("jyvtemp")
-    let temps = [];
-    let last = "";
-
-    for(const element of elements){
-        if (element.getElementsByTagName("BsWfs:ParameterName")[0].textContent == "t2m"){
-            const dataType = element.getElementsByTagName("BsWfs:ParameterName")[0].textContent;
-            const temp = element.getElementsByTagName("BsWfs:ParameterValue")[0].textContent;
-            const time = parseTime(element.getElementsByTagName("BsWfs:Time")[0].textContent);
-            last = `${time}: ${temp}\u00B0C`;
-            temps.push(last);
-        }
-    }
-
-    for(let i = -1; i > -4; i--){
-        console.log(temps[temps.length+i])
-        const makeP = document.createElement("p");
-        jyvTemp.append(makeP)
-        makeP.append(temps[temps.length+i])
-    }
-});
-
-const tempDataHalli = getData("halli").then(xmlDoc => {
-    const elements  = xmlDoc.getElementsByTagName("BsWfs:BsWfsElement")
-    const jyvTemp = document.getElementById("jyvtemp")
-    let temps = [];
-    let last = "";
-
-    for(const element of elements){
-        if (element.getElementsByTagName("BsWfs:ParameterName")[0].textContent == "t2m"){
-            const dataType = element.getElementsByTagName("BsWfs:ParameterName")[0].textContent;
-            const temp = element.getElementsByTagName("BsWfs:ParameterValue")[0].textContent;
-            const time = parseTime(element.getElementsByTagName("BsWfs:Time")[0].textContent);
-            last = `${time}: ${temp}\u00B0C`;
-            temps.push(last);
-        }
-    }
-    
-    for(let i = -1; i > -4; i--){
-        console.log(temps[temps.length+i])
-        const makeP = document.createElement("p");
-        hallitemp.append(makeP)
-        makeP.append(temps[temps.length+i])
-    }
-});
-
+getWeather("jyväskylä");
+getWeather("halli");
+getWeather("lappeenranta");
 
 
 
