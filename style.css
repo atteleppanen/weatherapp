@@ -1,18 +1,14 @@
 html{
     background-color: black;
     color: whitesmoke;
-
 }
-#jyvaskyla{
+.jyväskylä{
     display: flex;
-    border: 1px solid whitesmoke;
-    flex-wrap: wrap;
-    
+    flex-wrap: wrap;    
 }
-#jyvaskyla h1{
+.jyväskylä h1{
     flex-basis: 100%;
-    border: 1px solid whitesmoke;
 }
-#jyvtemp, #jyvforecast{
+.observation, .forecast{
     flex: 1;
 }

@@ -17,24 +17,38 @@ async function getData(place){
 };
 
 //function to create a place for HTML
-function getWeather(place){
+async function getWeather(place){
+    //create HTML elements and structure. Also add a header
+    const div = document.createElement("div");
+    div.classList.add(place);
+    div.style.display = "flex";
+    div.style.flexWrap = "wrap";
+
+    const div2 = document.createElement("div");
+    div2.classList.add(`observation`);
+
+    const div3 = document.createElement("div");
+    div3.classList.add(`forecast`)
+
+    let makeHeader = document.createElement("h1");
+    document.body.append(div);
+    div.append(makeHeader);
+    makeHeader.style.flexBasis = "100%"
+    div.append(div2);
+    div.append(div3);
+
+    makeHeader.append(capitalizePlace(place) + ":");
+
+    //capitalises the first letter of the place(mostly to make it the header in HTML)
+    function capitalizePlace(name){
+        let letters = name.split("");
+        let firstBig = letters[0].toUpperCase();
+        return firstBig + letters.join("").slice(1)
+    }
+
     //call the function to parse api
     const func = getData(place).then(xmlDoc => {
-        //create HTML elements and write the header for place
         const elements  = xmlDoc.getElementsByTagName("BsWfs:BsWfsElement");
-        const div = document.createElement("div");
-        let makeHeader = document.createElement("h1");
-        document.body.append(div);
-        div.append(makeHeader);
-        makeHeader.append(capitalizePlace(place) + ":");
-
-        //capitalises the first letter of the place(mostly to make it the header in HTML)
-        function capitalizePlace(name){
-            let letters = name.split("");
-            let firstBig = letters[0].toUpperCase();
-            return firstBig + letters.join("").slice(1)
-        }
-
         let temps = [];
         let last = "";
 
@@ -51,10 +65,17 @@ function getWeather(place){
         
         //put last 3 observations to HTML
         for(let i = -1; i > -4; i--){
-            const makeP = document.createElement("p");
+            const obsP = document.createElement("p");
+            div2.append(obsP)
+            obsP.append(temps[temps.length+i])
 
-            div.append(makeP)
-            makeP.append(temps[temps.length+i])
+        }
+
+        for(let j = 0; j < 5; j++){
+            const forP = document.createElement("p");
+
+            div3.append(forP);
+            forP.append("Tähän tulee forecastit");            
         }
     });
 }
