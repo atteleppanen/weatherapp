@@ -92,18 +92,68 @@ function parseTime(rawTime){
     return `${date} klo:${newTime}`
 }
 
+async function test(){
+    const response = await fetch(
+        `http://opendata.fmi.fi/wfs?request=getFeature&storedquery_id=fmi::forecast::edited::weather::scandinavia::point::simple&place=jyväskylä`
+    )
+    text = await response.text()
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(text, "text/xml")
+
+    const parameter = xmlDoc.getElementsByTagName("BsWfs:BsWfsElement")
+
+    for(element of parameter){
+        // console.log(element)
+        // if(element.children[2].textContent == "WeatherSymbol3"){
+        //     console.log(element.textContent)
+        // }
+        for(child of element.children){
+            console.log(child.textContent.trim())
+        }
+        console.log("---------------------")
+    }
+
+    /*
+    Halutaan parametrejä:
+    TotalCloudCover: saadaan pilvisyys - maybe
+    Temperature: lämpötila
+    WeatherSymbol3
+    PoP
+    Precipitation1h
+
+    Tahdotaan lisää tietoa:
+    PotentialPrecipitationType
+    PotentialPrecipitationForm
+    Precipitation1h (amount of rain in 1h)
+    WeatherSymbol3 (https://en.ilmatieteenlaitos.fi/weather-symbols)
+    PoP (probability of precipitation)
+    PrecipitationForm
+    PrecipitationType
+    */
+}
+ test();
+
 getWeather("jyväskylä");
 getWeather("halli");
-getWeather("lappeenranta");
 
+const formi = document.createElement("form");
+const textField = document.createElement("input");
+textField.type = "text";
+textField.placeholder = "Syötä paikan nimi etsiäksesi säätiedot";
+textField.required = true;
 
+const nappi = document.createElement("button");
+nappi.type = "submit";
+nappi.textContent = "Hae";
 
+formi.append(textField, nappi);
+document.body.append(formi);
 
-
-
-
-
-
+formi.addEventListener("submit", event =>{
+    event.preventDefault();
+    getWeather(textField.value.trim());
+})
 
 /*
 <wfs:member>

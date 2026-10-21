@@ -12,3 +12,8 @@ html{
 .observation, .forecast{
     flex: 1;
 }
+input{
+    width: 38ch;
+    padding: 1%;
+    margin: 1%;
+}
